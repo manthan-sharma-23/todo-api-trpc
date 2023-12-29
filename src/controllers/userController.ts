@@ -14,11 +14,12 @@ export async function userSignup(req: Request, res: Response) {
         email,
       },
     });
-    if (!user?.active)
-      return res
-        .status(402)
-        .json({ message: "Please reactivate your user account" });
-    if (user) return res.status(402).json({ message: "User already exists" });
+    if (user) {
+      if(!user.active){
+        return res.status(402).json({message:"Please reactivate your user account"})
+      }
+      return res.status(402).json({ message: "User already exists" });
+    }
 
     const salt = await bcrypt.genSalt();
     password = await bcrypt.hash(password, salt);
@@ -36,7 +37,7 @@ export async function userSignup(req: Request, res: Response) {
       .status(202)
       .json({ message: "User created successfully", token });
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server error" });
+    return res.status(500).json({ message: error });
   }
 }
 

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - todo-app-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=fluids23
+      - POSTGRES_DB=todo-app
+  
+  todo-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: postgresql://postgres:fluids23@postgresdb/todo-app?schema=public
+    environment:
+      PORT: 3200
+      SECRET_KEY: "dUDpvDXRPpXJoQEJ2T9FPBynHlsWVfD0sIpgoXPeNj4="
+    ports:
+      - 3200:3200
+    depends_on:
+      - postgresdb
+
+volumes:
+  todo-app-data:
