@@ -1,23 +1,17 @@
-import { PrismaClient } from "@prisma/client";
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
 
-const prisma = new PrismaClient({ log: ["info", "query"] });
+const app = express();
 
-async function main() {
-  // ... you will write your Prisma Client queries here
-  await prisma.user.create({
-    data: {
-      name: "Manthan Sharma",
-      email: "manthan2306s@gmail.com",
-    },
-  });
-}
+// middlewares
+app.use(cors());
+app.use(bodyParser.json({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+const port = process.env.PORT || 3002;
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
