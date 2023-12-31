@@ -1,15 +1,16 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
 import { prisma } from "../db";
 import { publicProcedure } from "../procedures/trpc";
-import { userInputType } from "../utils/types";
+import { loginInputType, userInputType } from "../utils/types";
 import {
   InternalServerError,
-  dataExistsError,
-  inactiveUserError,
+  DataExistsError,
+  InactiveUserError,
 } from "../utils/error";
+import { secretKey } from "..";
 
 export const userSignup = publicProcedure
   .input(userInputType)
@@ -25,15 +26,15 @@ export const userSignup = publicProcedure
 
       if (user) {
         if (!user.active) {
-          throw inactiveUserError();
+          throw InactiveUserError();
         }
-        throw dataExistsError("user");
+        throw DataExistsError("user", true);
       }
 
       const salt = await bcrypt.genSalt();
       const hash = await bcrypt.hash(password, salt);
 
-      user=await prisma.user.create({
+      user = await prisma.user.create({
         data: {
           name,
           email,
@@ -41,10 +42,10 @@ export const userSignup = publicProcedure
         },
       });
 
-      const token=await jwt.sign(user.id,"dfs")
-        
+      const token = await jwt.sign({ id: user.id }, secretKey);
+
       return {
-        message: "User Created successfully",
+        message: "Registered successfully",
         token,
       };
     } catch (error) {
@@ -52,39 +53,30 @@ export const userSignup = publicProcedure
     }
   });
 
-export const Login = publicProcedure
-  .input(userInputType)
+export const userLogin = publicProcedure
+  .input(loginInputType)
   .mutation(async (opt) => {
     try {
-      const { name, email, password } = opt.input;
+      const stream = opt.input;
 
       let user = await prisma.user.findUnique({
         where: {
-          email,
+          email: stream.email,
         },
       });
 
-      if (user) {
-        if (!user.active) {
-          throw inactiveUserError();
-        }
-        throw dataExistsError("user");
+      if (!user) {
+        throw DataExistsError("user", false);
+      }
+      if (!user.active) {
+        throw InactiveUserError();
       }
 
-      await prisma.user.create({
-        data: {
-          name,
-          email,
-          password,
-        },
-      });
+      const token = await jwt.sign({ id: user.id }, secretKey);
 
       return {
-        message: "User Created successfully",
-        user: {
-          name,
-          email,
-        },
+        message: "Logged in successfully",
+        token,
       };
     } catch (error) {
       throw InternalServerError(error);

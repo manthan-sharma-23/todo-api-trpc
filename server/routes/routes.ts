@@ -1,10 +1,9 @@
-
-import { router, publicProcedure } from "../trpc";
+import { userLogin, userSignup } from "../controllers/userController";
+import { router } from "../procedures/trpc";
 
 export const userRouter = router({
-    create:
+  register: userSignup,
+  login: userLogin,
 });
 
-export const todoRouter = router({
-    
-});
+export const todoRouter = router({});

@@ -13,3 +13,11 @@ export const todoInputType = z.object({
   description: z.string(),
   done: z.boolean(),
 });
+
+export const loginInputType = z.object({
+  email: z.string().email({ message: "Invalid Email Address" }),
+
+  password: z
+    .string()
+    .length(5, { message: "Password must consists atleast 5 characters" }),
+});

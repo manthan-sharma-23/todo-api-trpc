@@ -8,16 +8,30 @@ export const InternalServerError = (err: any) => {
   });
 };
 
-export const inactiveUserError = () => {
+export const InactiveUserError = () => {
   return new TRPCError({
     code: "CLIENT_CLOSED_REQUEST",
     message: "Please activate your created account",
   });
 };
 
-export const dataExistsError = (type: string) => {
+export const DataExistsError = (type: string, cnd: boolean) => {
+  if (cnd) {
+    return new TRPCError({
+      code: "CONFLICT",
+      message: `An active ${type} account already exists , Please login !`,
+    });
+  } else {
+    return new TRPCError({
+      code: "CONFLICT",
+      message: `${type} doesn't exists , Please register !`,
+    });
+  }
+};
+
+export const UnauthorizedRouteError = () => {
   return new TRPCError({
-    code: "CONFLICT",
-    message: `An active ${type} account already exists , Please login !`,
+    code: "FORBIDDEN",
+    message: "Please Login with correct credentials please",
   });
 };
