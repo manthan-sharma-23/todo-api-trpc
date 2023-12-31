@@ -9,3 +9,15 @@ const trpc=createTRPCProxyClient<AppRouter>({
         })
     ]
 });
+
+async function main(){
+    let response=await trpc.createUser.mutate({
+        name:"Manthan",
+        email:"manthan23@gmail.com",
+        password:"manthan@1233"
+    })
+
+    console.log(response);
+}
+
+main();
