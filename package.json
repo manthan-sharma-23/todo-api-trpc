@@ -10,7 +10,7 @@
     "build": " npx tsc -b",
     "start": "node ./dist/index.js",
     "server":"node ./dist/server/index",
-    "client":"node ./dist/client/index"
+    "client":"node ./dist/subscriber/index"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"

@@ -1,34 +1,33 @@
-import { initTRPC } from "@trpc/server";
-import * as trpcExpress from "@trpc/server/adapters/express";
 import express from "express";
-import { config } from "dotenv";
-import { todoRouter, userRouter } from "./routes/routes";
-
-// created for each request
-const createContext = ({
-  req,
-  res,
-}: trpcExpress.CreateExpressContextOptions) => ({}); // no context
-type Context = Awaited<ReturnType<typeof createContext>>;
-
-const t = initTRPC.context<Context>().create();
-
-const appRouter = t.router({
-  user: userRouter,
-  todo: todoRouter,
-});
+import * as trpcExpress from "@trpc/server/adapters/express";
+import { appConfig } from "./configs/config.app";
+import { createContext } from "./procedures/trpc.context";
+import { z } from "zod";
+import { publicProcedure, router } from "./procedures/trpc.procedures";
 
 const app = express();
-config();
-export const port = process.env.PORT || 4000;
-export const secretKey = process.env.SECRET_KEY || "";
 
+const appRouter = router({
+  hello: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .mutation((opt) => {
+      console.log(opt);
+      console.log("hello");
+      return {
+        name:opt.input.name,
+      };
+    }),
+});
+
+export type Approuter = typeof appRouter;
 app.use(
-  "/trpc",
+  "/",
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext,
   })
 );
 
-app.listen(port);
+app.listen(appConfig.port, () => {
+  console.log(`Server running on port ${appConfig.port}`);
+});
