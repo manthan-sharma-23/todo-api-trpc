@@ -14,7 +14,7 @@ const appRouter = router({
       console.log(opt);
       console.log("hello");
       return {
-        name:opt.input.name,
+        name: opt.input.name,
       };
     }),
 });
